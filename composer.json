@@ -1,0 +1,57 @@
+{
+    "name": "tiamenti/vk-bot-sdk",
+    "description": "Laravel SDK для разработки VK-ботов с поддержкой Callback API и Long Poll",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tiamenti",
+            "homepage": "https://tiamenti.ru"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/cache": "^11.0|^12.0|^13.0",
+        "illuminate/console": "^11.0|^12.0|^13.0",
+        "illuminate/database": "^11.0|^12.0|^13.0",
+        "vkcom/vk-php-sdk": "^6.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "orchestra/testbench": "^9.0|^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tiamenti\\VkBotSdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tiamenti\\VkBotSdk\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tiamenti\\VkBotSdk\\VkServiceProvider"
+            ],
+            "aliases": {
+                "Vk": "Tiamenti\\VkBotSdk\\Facades\\Vk"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "pest",
+        "test:coverage": "pest --coverage"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
