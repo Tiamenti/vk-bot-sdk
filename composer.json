@@ -17,12 +17,12 @@
         "illuminate/cache": "^11.0|^12.0|^13.0",
         "illuminate/console": "^11.0|^12.0|^13.0",
         "illuminate/database": "^11.0|^12.0|^13.0",
-        "vkcom/vk-php-sdk": "^6.0"
+        "vkcom/vk-php-sdk": "^5.0"
     },
     "require-dev": {
-        "pestphp/pest": "^3.0",
-        "pestphp/pest-plugin-laravel": "^3.0",
-        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0|^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
         "mockery/mockery": "^1.6"
     },
     "autoload": {
@@ -35,6 +35,19 @@
             "Tiamenti\\VkBotSdk\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "test": "pest",
+        "test:coverage": "pest --coverage"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -45,13 +58,6 @@
             }
         }
     },
-    "config": {
-        "sort-packages": true
-    },
-    "scripts": {
-        "test": "pest",
-        "test:coverage": "pest --coverage"
-    },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
