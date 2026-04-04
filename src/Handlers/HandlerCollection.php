@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tiamenti\VkBotSdk\Handlers;
 
 use Tiamenti\VkBotSdk\Context\MessageContext;
-use Tiamenti\VkBotSdk\Enums\EventType;
 
 /**
  * Коллекция зарегистрированных обработчиков.

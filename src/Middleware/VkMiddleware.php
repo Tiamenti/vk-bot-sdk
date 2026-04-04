@@ -29,8 +29,8 @@ interface VkMiddleware
     /**
      * Обработать входящее событие.
      *
-     * @param MessageContext $ctx  Контекст текущего события
-     * @param callable       $next Следующий обработчик в цепочке
+     * @param  MessageContext  $ctx  Контекст текущего события
+     * @param  callable  $next  Следующий обработчик в цепочке
      */
     public function handle(MessageContext $ctx, callable $next): void;
 }

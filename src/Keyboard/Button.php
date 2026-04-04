@@ -15,9 +15,9 @@ use Tiamenti\VkBotSdk\Enums\ButtonType;
 final class Button
 {
     /**
-     * @param ButtonType           $type    Тип кнопки
-     * @param ButtonColor|null     $color   Цвет кнопки (только для text и callback)
-     * @param array<string, mixed> $action  Параметры действия кнопки
+     * @param  ButtonType  $type  Тип кнопки
+     * @param  ButtonColor|null  $color  Цвет кнопки (только для text и callback)
+     * @param  array<string, mixed>  $action  Параметры действия кнопки
      */
     public function __construct(
         private readonly ButtonType $type,
@@ -28,7 +28,7 @@ final class Button
     /**
      * Создать текстовую кнопку.
      *
-     * @param array<string, mixed>|null $payload JSON-payload
+     * @param  array<string, mixed>|null  $payload  JSON-payload
      */
     public static function text(
         string $label,
@@ -50,9 +50,9 @@ final class Button
     public static function openLink(string $label, string $link, ?string $hash = null): self
     {
         $action = [
-            'type'  => ButtonType::OpenLink->value,
+            'type' => ButtonType::OpenLink->value,
             'label' => $label,
-            'link'  => $link,
+            'link' => $link,
         ];
 
         if ($hash !== null) {
@@ -65,7 +65,7 @@ final class Button
     /**
      * Создать кнопку VK Pay.
      *
-     * @param array<string, mixed> $hash Параметры VK Pay
+     * @param  array<string, mixed>  $hash  Параметры VK Pay
      */
     public static function vkPay(array $hash): self
     {
@@ -79,7 +79,7 @@ final class Button
     /**
      * Создать кнопку открытия мини-приложения.
      *
-     * @param array<string, mixed>|null $payload
+     * @param  array<string, mixed>|null  $payload
      */
     public static function openApp(
         string $label,
@@ -89,9 +89,9 @@ final class Button
         ?array $payload = null,
     ): self {
         $action = [
-            'type'     => ButtonType::OpenApp->value,
-            'label'    => $label,
-            'app_id'   => $appId,
+            'type' => ButtonType::OpenApp->value,
+            'label' => $label,
+            'app_id' => $appId,
             'owner_id' => $ownerId,
         ];
 
@@ -117,7 +117,7 @@ final class Button
     /**
      * Создать callback-кнопку (event button).
      *
-     * @param array<string, mixed> $payload JSON-payload события
+     * @param  array<string, mixed>  $payload  JSON-payload события
      */
     public static function callback(
         string $label,
@@ -128,8 +128,8 @@ final class Button
             ButtonType::Callback,
             $color,
             [
-                'type'    => ButtonType::Callback->value,
-                'label'   => $label,
+                'type' => ButtonType::Callback->value,
+                'label' => $label,
                 'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE),
             ],
         );

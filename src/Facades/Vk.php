@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tiamenti\VkBotSdk\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Tiamenti\VkBotSdk\Context\MessageContext;
 use Tiamenti\VkBotSdk\Enums\EventType;
 use Tiamenti\VkBotSdk\VkBot;
 

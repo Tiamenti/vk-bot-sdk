@@ -14,7 +14,8 @@ use Illuminate\Filesystem\Filesystem;
  */
 final class MakeConversationCommand extends Command
 {
-    protected $signature   = 'vk:make:conversation {name : Имя класса диалога}';
+    protected $signature = 'vk:make:conversation {name : Имя класса диалога}';
+
     protected $description = 'Создать класс Conversation в app/VK/Conversations/';
 
     public function __construct(private readonly Filesystem $files)
@@ -29,6 +30,7 @@ final class MakeConversationCommand extends Command
 
         if ($this->files->exists($path)) {
             $this->error("Conversation [{$name}] уже существует.");
+
             return self::FAILURE;
         }
 
@@ -42,7 +44,7 @@ final class MakeConversationCommand extends Command
 
     private function buildStub(string $name): string
     {
-        $namespace = $this->laravel->getNamespace() . 'VK\\Conversations';
+        $namespace = $this->laravel->getNamespace().'VK\\Conversations';
 
         return <<<PHP
         <?php

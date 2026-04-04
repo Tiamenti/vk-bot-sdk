@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Tiamenti\VkBotSdk\Enums\EventType;
 use Tiamenti\VkBotSdk\Facades\Vk;
 use Tiamenti\VkBotSdk\Http\Controllers\CallbackController;
 
@@ -14,7 +15,7 @@ describe('CallbackController', function (): void {
 
     it('возвращает confirmation_token при первом запросе', function (): void {
         $response = $this->postJson('/vk/webhook', [
-            'type'   => 'confirmation',
+            'type' => 'confirmation',
             'secret' => 'test_secret',
             'group_id' => 123456,
         ]);
@@ -24,18 +25,18 @@ describe('CallbackController', function (): void {
     });
 
     it('возвращает ok при обработке события', function (): void {
-        Vk::on(\Tiamenti\VkBotSdk\Enums\EventType::MessageNew, fn () => null);
+        Vk::on(EventType::MessageNew, fn () => null);
 
         $response = $this->postJson('/vk/webhook', [
-            'type'     => 'message_new',
-            'secret'   => 'test_secret',
+            'type' => 'message_new',
+            'secret' => 'test_secret',
             'group_id' => 123456,
-            'object'   => [
+            'object' => [
                 'message' => [
-                    'id'      => 1,
+                    'id' => 1,
                     'peer_id' => 100,
                     'from_id' => 1,
-                    'text'    => 'Привет',
+                    'text' => 'Привет',
                 ],
             ],
         ]);
@@ -46,7 +47,7 @@ describe('CallbackController', function (): void {
 
     it('возвращает 403 при неверном секрете', function (): void {
         $response = $this->postJson('/vk/webhook', [
-            'type'   => 'message_new',
+            'type' => 'message_new',
             'secret' => 'wrong_secret',
         ]);
 
@@ -60,20 +61,20 @@ describe('CallbackController', function (): void {
     });
 
     it('возвращает ok даже если обработчик выбросил исключение', function (): void {
-        Vk::on(\Tiamenti\VkBotSdk\Enums\EventType::MessageNew, function (): void {
-            throw new \RuntimeException('Тестовая ошибка');
+        Vk::on(EventType::MessageNew, function (): void {
+            throw new RuntimeException('Тестовая ошибка');
         });
 
         $response = $this->postJson('/vk/webhook', [
-            'type'     => 'message_new',
-            'secret'   => 'test_secret',
+            'type' => 'message_new',
+            'secret' => 'test_secret',
             'group_id' => 123456,
-            'object'   => [
+            'object' => [
                 'message' => [
-                    'id'      => 2,
+                    'id' => 2,
                     'peer_id' => 100,
                     'from_id' => 1,
-                    'text'    => 'тест',
+                    'text' => 'тест',
                 ],
             ],
         ]);
@@ -91,15 +92,15 @@ describe('CallbackController', function (): void {
         });
 
         $this->postJson('/vk/webhook', [
-            'type'     => 'message_new',
-            'secret'   => 'test_secret',
+            'type' => 'message_new',
+            'secret' => 'test_secret',
             'group_id' => 123456,
-            'object'   => [
+            'object' => [
                 'message' => [
-                    'id'      => 3,
+                    'id' => 3,
                     'peer_id' => 100,
                     'from_id' => 1,
-                    'text'    => 'привет',
+                    'text' => 'привет',
                 ],
             ],
         ]);
@@ -115,15 +116,15 @@ describe('CallbackController', function (): void {
         });
 
         $this->postJson('/vk/webhook', [
-            'type'     => 'message_new',
-            'secret'   => 'test_secret',
+            'type' => 'message_new',
+            'secret' => 'test_secret',
             'group_id' => 123456,
-            'object'   => [
+            'object' => [
                 'message' => [
-                    'id'      => 4,
+                    'id' => 4,
                     'peer_id' => 100,
                     'from_id' => 1,
-                    'text'    => 'что-то неизвестное',
+                    'text' => 'что-то неизвестное',
                 ],
             ],
         ]);

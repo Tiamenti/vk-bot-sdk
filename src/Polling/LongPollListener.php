@@ -32,7 +32,7 @@ final class LongPollListener
     /**
      * Запустить Long Poll цикл.
      *
-     * @param OutputStyle|null $output Вывод Artisan-команды
+     * @param  OutputStyle|null  $output  Вывод Artisan-команды
      */
     public function listen(?OutputStyle $output = null): void
     {
@@ -46,6 +46,7 @@ final class LongPollListener
 
                 if (isset($response['failed'])) {
                     [$server, $key, $ts] = $this->handleFailed((int) $response['failed'], $ts);
+
                     continue;
                 }
 
@@ -55,7 +56,7 @@ final class LongPollListener
                     $this->processUpdate($update, $output);
                 }
             } catch (\Throwable $e) {
-                $this->logger->error('VK Long Poll error: ' . $e->getMessage(), [
+                $this->logger->error('VK Long Poll error: '.$e->getMessage(), [
                     'exception' => $e,
                 ]);
                 $output?->writeln("<error>Ошибка: {$e->getMessage()}. Повтор через {$this->retryDelay}с...</error>");
@@ -65,7 +66,7 @@ final class LongPollListener
                 try {
                     [$server, $key, $ts] = $this->initLongPoll();
                 } catch (\Throwable $initError) {
-                    $this->logger->error('VK Long Poll init error: ' . $initError->getMessage());
+                    $this->logger->error('VK Long Poll init error: '.$initError->getMessage());
                 }
             }
         }
@@ -136,7 +137,7 @@ final class LongPollListener
     /**
      * Обработать одно событие Long Poll.
      *
-     * @param array<string, mixed>  $update
+     * @param  array<string, mixed>  $update
      */
     private function processUpdate(array $update, ?OutputStyle $output): void
     {
@@ -151,7 +152,7 @@ final class LongPollListener
         try {
             $this->bot->handle($update);
         } catch (\Throwable $e) {
-            $this->logger->error("VK Long Poll handler error [{$type}]: " . $e->getMessage());
+            $this->logger->error("VK Long Poll handler error [{$type}]: ".$e->getMessage());
             $output?->writeln("<error>Ошибка обработчика [{$type}]: {$e->getMessage()}</error>");
         }
     }

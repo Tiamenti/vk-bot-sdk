@@ -14,7 +14,8 @@ use Illuminate\Filesystem\Filesystem;
  */
 final class MakeMiddlewareCommand extends Command
 {
-    protected $signature   = 'vk:make:middleware {name : Имя класса middleware}';
+    protected $signature = 'vk:make:middleware {name : Имя класса middleware}';
+
     protected $description = 'Создать класс VK-middleware в app/VK/Middleware/';
 
     public function __construct(private readonly Filesystem $files)
@@ -29,6 +30,7 @@ final class MakeMiddlewareCommand extends Command
 
         if ($this->files->exists($path)) {
             $this->error("Middleware [{$name}] уже существует.");
+
             return self::FAILURE;
         }
 
@@ -42,7 +44,7 @@ final class MakeMiddlewareCommand extends Command
 
     private function buildStub(string $name): string
     {
-        $namespace = $this->laravel->getNamespace() . 'VK\\Middleware';
+        $namespace = $this->laravel->getNamespace().'VK\\Middleware';
 
         return <<<PHP
         <?php

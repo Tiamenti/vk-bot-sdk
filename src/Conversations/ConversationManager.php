@@ -41,14 +41,14 @@ final class ConversationManager
     /**
      * Запустить новый диалог.
      *
-     * @param array<string, mixed> $args Дополнительные аргументы
+     * @param  array<string, mixed>  $args  Дополнительные аргументы
      */
     public function start(int $peerId, string $conversationClass, string $step, array $args = []): void
     {
         $this->save($peerId, [
             'class' => $conversationClass,
-            'step'  => $step,
-            'data'  => $args,
+            'step' => $step,
+            'data' => $args,
         ]);
     }
 
@@ -66,8 +66,8 @@ final class ConversationManager
         }
 
         $class = $state['class'];
-        $step  = $state['step'];
-        $data  = $state['data'] ?? [];
+        $step = $state['step'];
+        $data = $state['data'] ?? [];
 
         /** @var Conversation $conversation */
         $conversation = new $class($this, $ctx->getPeerId(), $data);
@@ -105,7 +105,7 @@ final class ConversationManager
     /**
      * Обновить данные диалога.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function updateData(int $peerId, array $data): void
     {
@@ -154,12 +154,13 @@ final class ConversationManager
     /**
      * Сохранить состояние в хранилище.
      *
-     * @param array<string, mixed> $state
+     * @param  array<string, mixed>  $state
      */
     private function save(int $peerId, array $state): void
     {
         if ($this->driver === 'database') {
             $this->saveToDatabase($peerId, $state);
+
             return;
         }
 
@@ -177,6 +178,7 @@ final class ConversationManager
     {
         if ($this->driver === 'database') {
             $this->db?->table($this->table)->where('peer_id', $peerId)->delete();
+
             return;
         }
 
@@ -185,7 +187,7 @@ final class ConversationManager
 
     private function cacheKey(int $peerId): string
     {
-        return self::CACHE_PREFIX . $peerId;
+        return self::CACHE_PREFIX.$peerId;
     }
 
     /**
@@ -211,7 +213,7 @@ final class ConversationManager
     }
 
     /**
-     * @param array<string, mixed> $state
+     * @param  array<string, mixed>  $state
      */
     private function saveToDatabase(int $peerId, array $state): void
     {

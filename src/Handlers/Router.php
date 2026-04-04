@@ -6,6 +6,7 @@ namespace Tiamenti\VkBotSdk\Handlers;
 
 use Illuminate\Container\Container;
 use Tiamenti\VkBotSdk\Context\MessageContext;
+use Tiamenti\VkBotSdk\Conversations\Conversation;
 use Tiamenti\VkBotSdk\Conversations\ConversationManager;
 use Tiamenti\VkBotSdk\Enums\EventType;
 use Tiamenti\VkBotSdk\Middleware\VkMiddleware;
@@ -48,7 +49,7 @@ final class Router
     /**
      * Зарегистрировать обработчик по тексту сообщения.
      *
-     * @param string|array<int,string> $pattern
+     * @param  string|array<int,string>  $pattern
      */
     public function hears(string|array $pattern, callable|string|array $handler): void
     {
@@ -74,7 +75,7 @@ final class Router
     /**
      * Зарегистрировать обработчик по payload кнопки.
      *
-     * @param string|array<mixed> $payload
+     * @param  string|array<mixed>  $payload
      */
     public function onPayload(string|array $payload, callable|string|array $handler): void
     {
@@ -98,8 +99,6 @@ final class Router
 
     /**
      * Добавить глобальный middleware.
-     *
-     * @param callable|string $middleware
      */
     public function middleware(callable|string $middleware): void
     {
@@ -139,6 +138,7 @@ final class Router
 
         if ($conversationManager->hasActive($ctx->getPeerId())) {
             $conversationManager->resume($ctx);
+
             return;
         }
 
@@ -169,7 +169,7 @@ final class Router
     /**
      * Запустить middleware-пайплайн и вызвать обработчик.
      *
-     * @param array<int, callable|string> $middlewares
+     * @param  array<int, callable|string>  $middlewares
      */
     private function runPipeline(MessageContext $ctx, mixed $handler, array $middlewares): void
     {
@@ -198,12 +198,14 @@ final class Router
     {
         if (is_string($handler)) {
             // Может быть классом Conversation
-            if (is_subclass_of($handler, \Tiamenti\VkBotSdk\Conversations\Conversation::class)) {
+            if (is_subclass_of($handler, Conversation::class)) {
                 $handler::begin($ctx);
+
                 return;
             }
             // Или просто callable-строкой (функция)
             $handler($ctx);
+
             return;
         }
 
@@ -211,6 +213,7 @@ final class Router
             [$class, $method] = $handler;
             $instance = is_object($class) ? $class : $this->container->make($class);
             $instance->{$method}($ctx);
+
             return;
         }
 
@@ -229,7 +232,8 @@ final class Router
         }
 
         // callable-обёртка
-        return new class ($middleware) implements VkMiddleware {
+        return new class($middleware) implements VkMiddleware
+        {
             public function __construct(private readonly mixed $callable) {}
 
             public function handle(MessageContext $ctx, callable $next): void

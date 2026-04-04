@@ -12,16 +12,16 @@ namespace Tiamenti\VkBotSdk\Enums;
 enum ButtonType: string
 {
     /** Обычная текстовая кнопка. */
-    case Text     = 'text';
+    case Text = 'text';
 
     /** Кнопка-ссылка. */
     case OpenLink = 'open_link';
 
     /** Кнопка оплаты через VK Pay. */
-    case VkPay    = 'vkpay';
+    case VkPay = 'vkpay';
 
     /** Кнопка открытия мини-приложения. */
-    case OpenApp  = 'open_app';
+    case OpenApp = 'open_app';
 
     /** Кнопка отправки геолокации. */
     case Location = 'location';

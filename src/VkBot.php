@@ -50,7 +50,7 @@ final class VkBot
      * Зарегистрировать обработчик по тексту сообщения.
      * Поддерживает строки, массивы строк и регулярные выражения.
      *
-     * @param string|array<int,string> $pattern
+     * @param  string|array<int,string>  $pattern
      *
      * @example
      * Vk::hears('привет', fn($ctx) => $ctx->reply('Привет!'));
@@ -78,7 +78,7 @@ final class VkBot
     /**
      * Зарегистрировать обработчик по payload кнопки.
      *
-     * @param string|array<mixed> $payload
+     * @param  string|array<mixed>  $payload
      *
      * @example
      * Vk::onPayload(['action' => 'buy'], fn($ctx) => $ctx->reply('Куплено!'));
@@ -131,7 +131,7 @@ final class VkBot
     /**
      * Обработать входящий payload от VK (Callback API или Long Poll).
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      * @return string Строка для ответа VK ('ok' или confirmation_token)
      */
     public function handle(array $payload): string

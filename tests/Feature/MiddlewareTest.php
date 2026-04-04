@@ -37,6 +37,7 @@ class BlockingMiddleware implements VkMiddleware
 class OrderTrackingMiddleware implements VkMiddleware
 {
     public static array $order = [];
+
     private string $name;
 
     public function __construct(string $name)
@@ -46,9 +47,9 @@ class OrderTrackingMiddleware implements VkMiddleware
 
     public function handle(MessageContext $ctx, callable $next): void
     {
-        self::$order[] = $this->name . ':before';
+        self::$order[] = $this->name.':before';
         $next($ctx);
-        self::$order[] = $this->name . ':after';
+        self::$order[] = $this->name.':after';
     }
 }
 
@@ -61,15 +62,15 @@ function postVkEvent(mixed $test, string $text = 'test'): void
     Route::post('/vk/webhook', CallbackController::class);
 
     $test->postJson('/vk/webhook', [
-        'type'     => 'message_new',
-        'secret'   => 'test_secret',
+        'type' => 'message_new',
+        'secret' => 'test_secret',
         'group_id' => 123456,
-        'object'   => [
+        'object' => [
             'message' => [
-                'id'      => 1,
+                'id' => 1,
                 'peer_id' => 100,
                 'from_id' => 1,
-                'text'    => $text,
+                'text' => $text,
             ],
         ],
     ]);
@@ -83,8 +84,8 @@ describe('Middleware pipeline', function (): void {
 
     beforeEach(function (): void {
         PassThroughMiddleware::$callCount = 0;
-        BlockingMiddleware::$blocked      = false;
-        OrderTrackingMiddleware::$order   = [];
+        BlockingMiddleware::$blocked = false;
+        OrderTrackingMiddleware::$order = [];
     });
 
     it('вызывает глобальный middleware', function (): void {
@@ -127,7 +128,7 @@ describe('Middleware pipeline', function (): void {
 
     it('группа middleware применяется только к своим обработчикам', function (): void {
         $outsideCalled = false;
-        $insideCalled  = false;
+        $insideCalled = false;
 
         Vk::hears('outside', function () use (&$outsideCalled): void {
             $outsideCalled = true;

@@ -14,7 +14,8 @@ use Illuminate\Filesystem\Filesystem;
  */
 final class MakeHandlerCommand extends Command
 {
-    protected $signature   = 'vk:make:handler {name : Имя класса обработчика}';
+    protected $signature = 'vk:make:handler {name : Имя класса обработчика}';
+
     protected $description = 'Создать класс VK-обработчика в app/VK/Handlers/';
 
     public function __construct(private readonly Filesystem $files)
@@ -29,6 +30,7 @@ final class MakeHandlerCommand extends Command
 
         if ($this->files->exists($path)) {
             $this->error("Обработчик [{$name}] уже существует.");
+
             return self::FAILURE;
         }
 
@@ -42,7 +44,7 @@ final class MakeHandlerCommand extends Command
 
     private function buildStub(string $name): string
     {
-        $namespace = $this->laravel->getNamespace() . 'VK\\Handlers';
+        $namespace = $this->laravel->getNamespace().'VK\\Handlers';
 
         return <<<PHP
         <?php

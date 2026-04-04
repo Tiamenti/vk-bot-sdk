@@ -12,6 +12,7 @@ use Tiamenti\VkBotSdk\Console\Commands\MakeConversationCommand;
 use Tiamenti\VkBotSdk\Console\Commands\MakeHandlerCommand;
 use Tiamenti\VkBotSdk\Console\Commands\MakeMiddlewareCommand;
 use Tiamenti\VkBotSdk\Conversations\ConversationManager;
+use Tiamenti\VkBotSdk\Facades\Vk;
 use Tiamenti\VkBotSdk\Handlers\HandlerCollection;
 use Tiamenti\VkBotSdk\Handlers\Router;
 use Tiamenti\VkBotSdk\Polling\LongPollListener;
@@ -25,7 +26,7 @@ final class VkServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/vk-bot.php',
+            __DIR__.'/../config/vk-bot.php',
             'vk-bot',
         );
 
@@ -46,7 +47,7 @@ final class VkServiceProvider extends ServiceProvider
         }
 
         if (config('vk-bot.facade', true)) {
-            $this->app->alias('vk-bot', \Tiamenti\VkBotSdk\Facades\Vk::class);
+            $this->app->alias('vk-bot', Vk::class);
         }
     }
 
@@ -65,8 +66,8 @@ final class VkServiceProvider extends ServiceProvider
     {
         $this->app->singleton(ConversationManager::class, function (Application $app): ConversationManager {
             $driver = config('vk-bot.conversations.driver', 'cache');
-            $ttl    = (int) config('vk-bot.conversations.ttl', 60);
-            $table  = (string) config('vk-bot.conversations.table', 'vk_conversations');
+            $ttl = (int) config('vk-bot.conversations.ttl', 60);
+            $table = (string) config('vk-bot.conversations.table', 'vk_conversations');
 
             $db = null;
             if ($driver === 'database') {
@@ -85,7 +86,7 @@ final class VkServiceProvider extends ServiceProvider
 
     private function registerHandlerCollection(): void
     {
-        $this->app->singleton(HandlerCollection::class, fn (): HandlerCollection => new HandlerCollection());
+        $this->app->singleton(HandlerCollection::class, fn (): HandlerCollection => new HandlerCollection);
     }
 
     private function registerRouter(): void
@@ -137,14 +138,14 @@ final class VkServiceProvider extends ServiceProvider
     private function publishConfig(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/vk-bot.php' => config_path('vk-bot.php'),
+            __DIR__.'/../config/vk-bot.php' => config_path('vk-bot.php'),
         ], 'vk-bot-config');
     }
 
     private function publishMigrations(): void
     {
         $this->publishes([
-            __DIR__ . '/../database/migrations/' => database_path('migrations'),
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
         ], 'vk-bot-migrations');
     }
 

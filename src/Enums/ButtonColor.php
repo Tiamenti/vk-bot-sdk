@@ -12,14 +12,14 @@ namespace Tiamenti\VkBotSdk\Enums;
 enum ButtonColor: string
 {
     /** Синяя кнопка (основное действие). */
-    case Primary   = 'primary';
+    case Primary = 'primary';
 
     /** Белая кнопка (нейтральное действие). */
     case Secondary = 'secondary';
 
     /** Красная кнопка (деструктивное действие). */
-    case Negative  = 'negative';
+    case Negative = 'negative';
 
     /** Зелёная кнопка (подтверждение). */
-    case Positive  = 'positive';
+    case Positive = 'positive';
 }

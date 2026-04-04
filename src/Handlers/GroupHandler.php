@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tiamenti\VkBotSdk\Handlers;
 
-use Tiamenti\VkBotSdk\Enums\EventType;
-
 /**
  * Группа обработчиков с общими middleware.
  *
@@ -26,7 +24,7 @@ final class GroupHandler
     private array $collected = [];
 
     /**
-     * @param HandlerCollection $collection Основная коллекция обработчиков
+     * @param  HandlerCollection  $collection  Основная коллекция обработчиков
      */
     public function __construct(
         private readonly HandlerCollection $collection,
@@ -34,8 +32,6 @@ final class GroupHandler
 
     /**
      * Добавить middleware для всей группы.
-     *
-     * @param callable|string $middleware
      */
     public function addMiddleware(callable|string $middleware): void
     {

@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Psr\Log\LoggerInterface;
-use Tiamenti\VkBotSdk\Exceptions\InvalidSecretException;
 use Tiamenti\VkBotSdk\VkBot;
 
 /**
@@ -56,7 +55,7 @@ final class CallbackController extends Controller
         } catch (\Throwable $e) {
             $this->logger->error('VK Callback: handler error', [
                 'exception' => $e->getMessage(),
-                'trace'     => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             // VK требует ответ 'ok', иначе будет повторять попытки

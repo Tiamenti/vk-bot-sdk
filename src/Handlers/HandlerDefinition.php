@@ -12,19 +12,23 @@ use Tiamenti\VkBotSdk\Enums\EventType;
  */
 final class HandlerDefinition
 {
-    public const TYPE_ON       = 'on';
-    public const TYPE_HEARS    = 'hears';
-    public const TYPE_COMMAND  = 'command';
-    public const TYPE_PAYLOAD  = 'payload';
+    public const TYPE_ON = 'on';
+
+    public const TYPE_HEARS = 'hears';
+
+    public const TYPE_COMMAND = 'command';
+
+    public const TYPE_PAYLOAD = 'payload';
+
     public const TYPE_FALLBACK = 'fallback';
 
     /**
-     * @param string                        $type        Тип обработчика
-     * @param callable                      $handler     Обработчик
-     * @param EventType|null                $event       Тип события (для on())
-     * @param string|array<int,string>|null $pattern     Паттерн текста (для hears/command)
-     * @param string|array<mixed>|null      $payload     Payload (для onPayload)
-     * @param array<int, callable|string>   $middlewares Middleware для этого обработчика
+     * @param  string  $type  Тип обработчика
+     * @param  callable  $handler  Обработчик
+     * @param  EventType|null  $event  Тип события (для on())
+     * @param  string|array<int,string>|null  $pattern  Паттерн текста (для hears/command)
+     * @param  string|array<mixed>|null  $payload  Payload (для onPayload)
+     * @param  array<int, callable|string>  $middlewares  Middleware для этого обработчика
      */
     public function __construct(
         private readonly string $type,
@@ -41,12 +45,12 @@ final class HandlerDefinition
     public function matches(MessageContext $ctx): bool
     {
         return match ($this->type) {
-            self::TYPE_ON       => $this->matchesEvent($ctx),
-            self::TYPE_HEARS    => $this->matchesText($ctx),
-            self::TYPE_COMMAND  => $this->matchesCommand($ctx),
-            self::TYPE_PAYLOAD  => $this->matchesPayload($ctx),
+            self::TYPE_ON => $this->matchesEvent($ctx),
+            self::TYPE_HEARS => $this->matchesText($ctx),
+            self::TYPE_COMMAND => $this->matchesCommand($ctx),
+            self::TYPE_PAYLOAD => $this->matchesPayload($ctx),
             self::TYPE_FALLBACK => true,
-            default             => false,
+            default => false,
         };
     }
 
@@ -71,7 +75,7 @@ final class HandlerDefinition
     /**
      * Создать новое определение с добавленными middleware.
      *
-     * @param array<int, callable|string> $middlewares
+     * @param  array<int, callable|string>  $middlewares
      */
     public function withMiddlewares(array $middlewares): self
     {
@@ -110,6 +114,7 @@ final class HandlerDefinition
                 if (preg_match($pattern, $text)) {
                     return true;
                 }
+
                 continue;
             }
 
@@ -167,6 +172,7 @@ final class HandlerDefinition
                 if (json_encode($payload, JSON_UNESCAPED_UNICODE) === $pattern) {
                     return true;
                 }
+
                 continue;
             }
 

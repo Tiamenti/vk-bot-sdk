@@ -24,14 +24,14 @@ use VK\Client\VKApiClient;
  */
 final class MessageContext
 {
-    use CanReply;
     use CanForward;
+    use CanReply;
 
     /**
-     * @param VKApiClient          $api         Клиент VK API
-     * @param string               $token       Токен сообщества
-     * @param EventType            $event       Тип события
-     * @param array<string, mixed> $eventObject Сырой объект события
+     * @param  VKApiClient  $api  Клиент VK API
+     * @param  string  $token  Токен сообщества
+     * @param  EventType  $event  Тип события
+     * @param  array<string, mixed>  $eventObject  Сырой объект события
      */
     public function __construct(
         private readonly VKApiClient $api,
@@ -102,7 +102,7 @@ final class MessageContext
     public function getText(): ?string
     {
         $message = $this->getMessage();
-        $text    = $message['text'] ?? null;
+        $text = $message['text'] ?? null;
 
         return ($text !== null && $text !== '') ? (string) $text : null;
     }
@@ -123,7 +123,7 @@ final class MessageContext
     public function getPayload(): ?array
     {
         $message = $this->getMessage();
-        $raw     = $message['payload'] ?? $this->eventObject['payload'] ?? null;
+        $raw = $message['payload'] ?? $this->eventObject['payload'] ?? null;
 
         if ($raw === null) {
             return null;

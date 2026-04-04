@@ -13,5 +13,5 @@ enum KeyboardType: string
     case Default_ = 'default';
 
     /** Inline-клавиатура (отображается под сообщением). */
-    case Inline   = 'inline';
+    case Inline = 'inline';
 }

@@ -12,27 +12,28 @@ use VK\Client\VKApiClient;
  * Трейт: отправка и редактирование сообщений.
  *
  * @property VKApiClient $api
- * @property string      $token
- * @property int         $peerId
+ * @property string $token
+ * @property int $peerId
  */
 trait CanReply
 {
     /**
      * Отправить сообщение в текущий чат.
      *
-     * @param string|null          $message         Текст сообщения
-     * @param string|array|null    $attachment       Вложение (строка или массив)
-     * @param Keyboard|array|null  $keyboard         Клавиатура
-     * @param int|null             $stickerId        ID стикера
-     * @param bool                 $dontParseLinks   Не парсить ссылки
-     * @param bool                 $disableMentions  Отключить упоминания
-     * @param string|null          $contentSource    Источник контента
-     * @param int|null             $randomId         Случайный ID (0 по умолчанию)
-     * @param int|null             $replyTo          ID сообщения для ответа
-     * @param string|null          $forwardMessages  ID пересылаемых сообщений
-     * @param string|null          $template         JSON-шаблон сообщения (карусель и т.д.)
-     * @param int|null             $expire           Время жизни сообщения (для бесед)
+     * @param  string|null  $message  Текст сообщения
+     * @param  string|array|null  $attachment  Вложение (строка или массив)
+     * @param  Keyboard|array|null  $keyboard  Клавиатура
+     * @param  int|null  $stickerId  ID стикера
+     * @param  bool  $dontParseLinks  Не парсить ссылки
+     * @param  bool  $disableMentions  Отключить упоминания
+     * @param  string|null  $contentSource  Источник контента
+     * @param  int|null  $randomId  Случайный ID (0 по умолчанию)
+     * @param  int|null  $replyTo  ID сообщения для ответа
+     * @param  string|null  $forwardMessages  ID пересылаемых сообщений
+     * @param  string|null  $template  JSON-шаблон сообщения (карусель и т.д.)
+     * @param  int|null  $expire  Время жизни сообщения (для бесед)
      * @return int ID отправленного сообщения
+     *
      * @throws VkApiException
      */
     public function reply(
@@ -50,7 +51,7 @@ trait CanReply
         ?int $expire = null,
     ): int {
         $params = [
-            'peer_id'   => $this->peerId,
+            'peer_id' => $this->peerId,
             'random_id' => $randomId ?? 0,
         ];
 
@@ -118,10 +119,11 @@ trait CanReply
     /**
      * Отредактировать существующее сообщение.
      *
-     * @param int                  $messageId  ID сообщения
-     * @param string               $message    Новый текст
-     * @param Keyboard|array|null  $keyboard   Новая клавиатура
-     * @param string|array|null    $attachment Новые вложения
+     * @param  int  $messageId  ID сообщения
+     * @param  string  $message  Новый текст
+     * @param  Keyboard|array|null  $keyboard  Новая клавиатура
+     * @param  string|array|null  $attachment  Новые вложения
+     *
      * @throws VkApiException
      */
     public function editMessage(
@@ -131,9 +133,9 @@ trait CanReply
         string|array|null $attachment = null,
     ): void {
         $params = [
-            'peer_id'    => $this->peerId,
+            'peer_id' => $this->peerId,
             'message_id' => $messageId,
-            'message'    => $message,
+            'message' => $message,
         ];
 
         if ($keyboard !== null) {
@@ -154,7 +156,8 @@ trait CanReply
     /**
      * Удалить сообщение(я).
      *
-     * @param int|int[] $messageIds  ID сообщения или массив ID
+     * @param  int|int[]  $messageIds  ID сообщения или массив ID
+     *
      * @throws VkApiException
      */
     public function deleteMessage(int|array $messageIds): void

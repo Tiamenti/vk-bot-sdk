@@ -14,7 +14,8 @@ use Tiamenti\VkBotSdk\Polling\LongPollListener;
  */
 final class BotListenCommand extends Command
 {
-    protected $signature   = 'vk:bot:listen {--once : Обработать одно событие и выйти (для тестов)}';
+    protected $signature = 'vk:bot:listen {--once : Обработать одно событие и выйти (для тестов)}';
+
     protected $description = 'Запустить VK-бот в режиме Long Poll';
 
     public function handle(LongPollListener $listener): int

@@ -13,9 +13,9 @@ use Throwable;
 class VkApiException extends RuntimeException
 {
     /**
-     * @param int             $errorCode    Код ошибки VK API
-     * @param string          $errorMessage Сообщение об ошибке VK API
-     * @param array<string, mixed> $requestParams Параметры запроса
+     * @param  int  $errorCode  Код ошибки VK API
+     * @param  string  $errorMessage  Сообщение об ошибке VK API
+     * @param  array<string, mixed>  $requestParams  Параметры запроса
      */
     public function __construct(
         private readonly int $errorCode,
@@ -34,7 +34,7 @@ class VkApiException extends RuntimeException
     /**
      * Создать исключение из ответа VK API.
      *
-     * @param array<string, mixed> $error
+     * @param  array<string, mixed>  $error
      */
     public static function fromApiResponse(array $error): self
     {

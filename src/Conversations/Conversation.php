@@ -127,8 +127,9 @@ abstract class Conversation
     /**
      * Запустить диалог.
      *
-     * @param MessageContext       $ctx  Контекст события
-     * @param array<string, mixed> $args Дополнительные данные
+     * @param  MessageContext  $ctx  Контекст события
+     * @param  array<string, mixed>  $args  Дополнительные данные
+     *
      * @throws ConversationException
      */
     public static function begin(MessageContext $ctx, array $args = []): void

@@ -15,10 +15,10 @@ function ctx(array $message = [], EventType $event = EventType::MessageNew): Mes
         token: 'token',
         event: $event,
         eventObject: ['message' => array_merge([
-            'id'      => 1,
+            'id' => 1,
             'peer_id' => 100,
             'from_id' => 42,
-            'text'    => 'Привет',
+            'text' => 'Привет',
         ], $message)],
     );
 }
@@ -71,8 +71,8 @@ describe('MessageContext геттеры', function (): void {
     });
 
     it('getEventObject() возвращает сырой объект', function (): void {
-        $raw     = ['message' => ['id' => 1, 'peer_id' => 100, 'from_id' => 42, 'text' => 'Привет']];
-        $api     = Mockery::mock(VKApiClient::class);
+        $raw = ['message' => ['id' => 1, 'peer_id' => 100, 'from_id' => 42, 'text' => 'Привет']];
+        $api = Mockery::mock(VKApiClient::class);
         $context = new MessageContext($api, 'token', EventType::MessageNew, $raw);
 
         expect($context->getEventObject())->toBe($raw);
@@ -87,9 +87,9 @@ describe('MessageContext геттеры', function (): void {
     });
 
     it('getMessageEvent() возвращает объект для MessageEvent', function (): void {
-        $api  = Mockery::mock(VKApiClient::class);
-        $obj  = ['event_id' => 'abc', 'user_id' => 1, 'peer_id' => 100, 'payload' => ['event' => 'test']];
-        $ctx  = new MessageContext($api, 'token', EventType::MessageEvent, $obj);
+        $api = Mockery::mock(VKApiClient::class);
+        $obj = ['event_id' => 'abc', 'user_id' => 1, 'peer_id' => 100, 'payload' => ['event' => 'test']];
+        $ctx = new MessageContext($api, 'token', EventType::MessageEvent, $obj);
 
         expect($ctx->getMessageEvent())->toBe($obj);
         expect($ctx->getEventId())->toBe('abc');

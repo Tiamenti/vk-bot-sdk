@@ -18,7 +18,7 @@ class ConversationException extends RuntimeException
     {
         return new self(
             "Step '{$step}' not found in conversation {$conversationClass}. "
-            . "Make sure the public method '{$step}' exists.",
+            ."Make sure the public method '{$step}' exists.",
         );
     }
 
@@ -29,7 +29,7 @@ class ConversationException extends RuntimeException
     {
         return new self(
             "Conversation {$conversationClass} has no start step. "
-            . "Define the protected string \$step property or a public 'start' method.",
+            ."Define the protected string \$step property or a public 'start' method.",
         );
     }
 }

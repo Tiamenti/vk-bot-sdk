@@ -27,7 +27,8 @@ final class Keyboard
     /** @var array<int, array<int, Button>> Строки кнопок */
     private array $rows = [[]];
 
-    private bool $inline  = false;
+    private bool $inline = false;
+
     private bool $oneTime = false;
 
     private function __construct() {}
@@ -37,7 +38,7 @@ final class Keyboard
      */
     public static function make(): self
     {
-        return new self();
+        return new self;
     }
 
     /**
@@ -45,7 +46,7 @@ final class Keyboard
      */
     public static function remove(): self
     {
-        return (new self())->empty();
+        return (new self)->empty();
     }
 
     // -------------------------------------------------------------------------
@@ -55,7 +56,7 @@ final class Keyboard
     /**
      * Добавить текстовую кнопку.
      *
-     * @param array<string, mixed>|null $payload JSON-payload
+     * @param  array<string, mixed>|null  $payload  JSON-payload
      */
     public function button(
         string $label,
@@ -80,7 +81,7 @@ final class Keyboard
     /**
      * Добавить кнопку VK Pay.
      *
-     * @param array<string, mixed> $hash
+     * @param  array<string, mixed>  $hash
      */
     public function vkPay(array $hash): self
     {
@@ -92,7 +93,7 @@ final class Keyboard
     /**
      * Добавить кнопку мини-приложения.
      *
-     * @param array<string, mixed>|null $payload
+     * @param  array<string, mixed>|null  $payload
      */
     public function openApp(
         string $label,
@@ -119,7 +120,7 @@ final class Keyboard
     /**
      * Добавить callback-кнопку (event button).
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     public function callback(
         string $label,
@@ -194,8 +195,8 @@ final class Keyboard
 
         return [
             'one_time' => $this->oneTime,
-            'inline'   => $this->inline,
-            'buttons'  => $buttons,
+            'inline' => $this->inline,
+            'buttons' => $buttons,
         ];
     }
 

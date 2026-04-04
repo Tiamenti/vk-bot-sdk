@@ -32,7 +32,7 @@ Vk::command('start', function (MessageContext $ctx): void {
         ->oneTime();
 
     $ctx->reply(
-        message: "Добро пожаловать! Выберите действие:",
+        message: 'Добро пожаловать! Выберите действие:',
         keyboard: $keyboard,
     );
 });
@@ -40,9 +40,9 @@ Vk::command('start', function (MessageContext $ctx): void {
 Vk::command('help', function (MessageContext $ctx): void {
     $ctx->reply(
         message: "📖 Доступные команды:\n"
-            . "/start — главное меню\n"
-            . "/help — помощь\n"
-            . "/about — информация о боте",
+            ."/start — главное меню\n"
+            ."/help — помощь\n"
+            .'/about — информация о боте',
     );
 });
 
@@ -51,7 +51,7 @@ Vk::command('help', function (MessageContext $ctx): void {
 // ---------------------------------------------------------------------------
 
 Vk::hears(['привет', 'hi', 'hello'], function (MessageContext $ctx): void {
-    $ctx->reply("Привет! Напишите /start для начала.");
+    $ctx->reply('Привет! Напишите /start для начала.');
 });
 
 // Регулярное выражение

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Cache;
 use Tiamenti\VkBotSdk\Context\MessageContext;
 use Tiamenti\VkBotSdk\Conversations\Conversation;
 use Tiamenti\VkBotSdk\Conversations\ConversationManager;
 use Tiamenti\VkBotSdk\Enums\EventType;
+use Tiamenti\VkBotSdk\Exceptions\ConversationException;
 use VK\Client\VKApiClient;
 
 // ---------------------------------------------------------------------------
@@ -35,7 +35,7 @@ class TestConversation extends Conversation
 
     public function finish(MessageContext $ctx): void
     {
-        $this->log[] = 'finish:' . $this->get('name');
+        $this->log[] = 'finish:'.$this->get('name');
         $this->end();
     }
 }
@@ -62,10 +62,10 @@ function makeMessageCtx(string $text = '', int $peerId = 100): MessageContext
         event: EventType::MessageNew,
         eventObject: [
             'message' => [
-                'id'      => 1,
+                'id' => 1,
                 'peer_id' => $peerId,
                 'from_id' => 1,
-                'text'    => $text,
+                'text' => $text,
             ],
         ],
     );
@@ -102,7 +102,7 @@ describe('ConversationManager', function (): void {
 
         // Подтверждаем через resume — он должен вызвать askAge
         $called = false;
-        $ctx    = makeMessageCtx('Иван');
+        $ctx = makeMessageCtx('Иван');
 
         // Подменяем класс, который уже зарегистрирован
         // Достаточно проверить, что after nextStep диалог всё ещё активен
@@ -137,11 +137,11 @@ describe('Conversation::begin()', function (): void {
         $ctx = makeMessageCtx();
 
         // Проверяем, что begin() не выбросил исключение
-        expect(fn () => SingleStepConversation::begin($ctx))->not->toThrow(\Exception::class);
+        expect(fn () => SingleStepConversation::begin($ctx))->not->toThrow(Exception::class);
     });
 
     it('диалог регистрируется в менеджере после begin()', function (): void {
-        $ctx     = makeMessageCtx(peerId: 200);
+        $ctx = makeMessageCtx(peerId: 200);
         $manager = app(ConversationManager::class);
 
         // SingleStepConversation сразу вызывает end()
@@ -152,12 +152,13 @@ describe('Conversation::begin()', function (): void {
     });
 
     it('выбрасывает исключение если шаг не найден', function (): void {
-        $invalidClass = new class(app(ConversationManager::class), 999) extends Conversation {
+        $invalidClass = new class(app(ConversationManager::class), 999) extends Conversation
+        {
             protected ?string $step = 'nonExistentMethod';
         };
 
         expect(fn () => $invalidClass::begin(makeMessageCtx(peerId: 999)))
-            ->toThrow(\Tiamenti\VkBotSdk\Exceptions\ConversationException::class);
+            ->toThrow(ConversationException::class);
     });
 
 });
@@ -170,7 +171,7 @@ describe('Conversation data persistence', function (): void {
 
     it('set() и get() работают внутри одного шага', function (): void {
         $manager = app(ConversationManager::class);
-        $ctx     = makeMessageCtx('Иван', 300);
+        $ctx = makeMessageCtx('Иван', 300);
 
         // Создаём экземпляр напрямую
         $conversation = new TestConversation($manager, 300, []);

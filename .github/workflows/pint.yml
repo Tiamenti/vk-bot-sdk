@@ -1,0 +1,19 @@
+name: PHP Linting
+
+on: pull_request
+
+jobs:
+  phplint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: "Run Laravel Pint"
+        uses: aglipanci/laravel-pint-action@latest
+        with:
+          verboseMode: true
+      - name: "Commit changes"
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "Pint: fix code styling"

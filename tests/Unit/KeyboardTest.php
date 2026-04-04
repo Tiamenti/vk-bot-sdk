@@ -13,8 +13,8 @@ describe('Keyboard::make()', function (): void {
 
         expect($array)->toMatchArray([
             'one_time' => false,
-            'inline'   => false,
-            'buttons'  => [],
+            'inline' => false,
+            'buttons' => [],
         ]);
     });
 
@@ -62,7 +62,7 @@ describe('Keyboard::make()', function (): void {
             ->toArray();
 
         $payloadRaw = $array['buttons'][0][0]['action']['payload'];
-        $payload    = json_decode($payloadRaw, true);
+        $payload = json_decode($payloadRaw, true);
 
         expect($payload)->toBe(['action' => 'test']);
     });
@@ -73,9 +73,9 @@ describe('Keyboard::make()', function (): void {
             ->toArray();
 
         expect($array['buttons'][0][0]['action'])->toMatchArray([
-            'type'  => 'open_link',
+            'type' => 'open_link',
             'label' => 'VK',
-            'link'  => 'https://vk.com',
+            'link' => 'https://vk.com',
         ]);
         // Нет поля color для open_link
         expect($array['buttons'][0][0])->not->toHaveKey('color');
@@ -116,7 +116,7 @@ describe('Button', function (): void {
 
     it('создаёт текстовую кнопку', function (): void {
         $button = Button::text('Привет', ButtonColor::Primary);
-        $array  = $button->toArray();
+        $array = $button->toArray();
 
         expect($array['action']['type'])->toBe('text');
         expect($array['action']['label'])->toBe('Привет');
@@ -125,7 +125,7 @@ describe('Button', function (): void {
 
     it('создаёт кнопку геолокации без цвета', function (): void {
         $button = Button::location();
-        $array  = $button->toArray();
+        $array = $button->toArray();
 
         expect($array['action']['type'])->toBe('location');
         expect($array)->not->toHaveKey('color');
