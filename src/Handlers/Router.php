@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tiamenti\VkBotSdk\Handlers;
 
+use Closure;
 use Illuminate\Container\Container;
 use Tiamenti\VkBotSdk\Context\MessageContext;
 use Tiamenti\VkBotSdk\Conversations\Conversation;
@@ -196,29 +197,34 @@ final class Router
      */
     private function callHandler(mixed $handler, MessageContext $ctx): void
     {
-        if (is_string($handler)) {
-            // Может быть классом Conversation
-            if (is_subclass_of($handler, Conversation::class)) {
-                $handler::begin($ctx);
-
-                return;
-            }
-            // Или просто callable-строкой (функция)
+        if ($handler instanceof Closure) {
             $handler($ctx);
 
             return;
         }
 
-        if (is_array($handler)) {
+        if (is_subclass_of($handler, Conversation::class)) {
+            $handler::begin($ctx);
+
+            return;
+        }
+
+        if (is_string($handler) && class_exists($handler)) {
+            (new $handler)($ctx);
+
+            return;
+        }
+
+        if (is_object($handler) && is_callable($handler)) {
+            $handler($ctx);
+
+            return;
+        }
+
+        if (is_array($handler) && count($handler) == 2) {
             [$class, $method] = $handler;
             $instance = is_object($class) ? $class : $this->container->make($class);
             $instance->{$method}($ctx);
-
-            return;
-        }
-
-        if (is_callable($handler)) {
-            $handler($ctx);
         }
     }
 
