@@ -23,7 +23,21 @@ use Tiamenti\VkBotSdk\VkBot;
  */
 final class Uploader
 {
-    public function __construct(private readonly VkBot $bot) {}
+    public function __construct(
+        private readonly VkBot $bot,
+        private ?string $token = null,
+    ) {
+        if (! $this->token) {
+            $this->token = $this->bot->getToken();
+        }
+    }
+
+    public function useToken(string $token): self
+    {
+        $this->token = $token;
+
+        return $this;
+    }
 
     /**
      * Загрузить фотографию.
@@ -43,7 +57,7 @@ final class Uploader
     {
         return new PendingPhotoUpload(
             api: $this->bot->getApi(),
-            token: $this->bot->getToken(),
+            token: $this->token,
         );
     }
 
@@ -62,7 +76,7 @@ final class Uploader
     {
         return new PendingVideoUpload(
             api: $this->bot->getApi(),
-            token: $this->bot->getToken(),
+            token: $this->token,
         );
     }
 
@@ -79,7 +93,7 @@ final class Uploader
     {
         return new PendingDocumentUpload(
             api: $this->bot->getApi(),
-            token: $this->bot->getToken(),
+            token: $this->token,
         );
     }
 
@@ -98,7 +112,7 @@ final class Uploader
     {
         return new PendingStoryUpload(
             api: $this->bot->getApi(),
-            token: $this->bot->getToken(),
+            token: $this->token,
         );
     }
 }
