@@ -203,14 +203,20 @@ final class Router
             return;
         }
 
-        if (is_subclass_of($handler, Conversation::class)) {
+        if (is_string($handler) && is_subclass_of($handler, Conversation::class)) {
             $handler::begin($ctx);
 
             return;
         }
 
         if (is_string($handler) && class_exists($handler)) {
-            (new $handler)($ctx);
+            ($this->container->make($handler))($ctx);
+
+            return;
+        }
+
+        if (is_string($handler) && function_exists($handler)) {
+            $handler($ctx);
 
             return;
         }
@@ -221,7 +227,7 @@ final class Router
             return;
         }
 
-        if (is_array($handler) && count($handler) == 2) {
+        if (is_array($handler) && count($handler) === 2) {
             [$class, $method] = $handler;
             $instance = is_object($class) ? $class : $this->container->make($class);
             $instance->{$method}($ctx);
