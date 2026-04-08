@@ -160,17 +160,25 @@ final class PendingDocumentUpload implements PendingUpload
      */
     private function getUploadServer(): string
     {
-        $params = ['type' => $this->docType];
-
         if ($this->serverMethod === 'wall') {
+            // docs.getWallUploadServer принимает только group_id.
+            // Параметр type здесь недопустим — VK вернёт "invalid type".
+            $params = [];
+
             if ($this->groupId !== null) {
                 $params['group_id'] = $this->groupId;
             }
+
             $server = $this->api->docs()->getWallUploadServer($this->token, $params);
         } else {
+            // docs.getMessagesUploadServer принимает peer_id и type
+            // ('doc', 'audio_message', 'graffiti').
+            $params = ['type' => $this->docType];
+
             if ($this->peerId !== null) {
                 $params['peer_id'] = $this->peerId;
             }
+
             $server = $this->api->docs()->getMessagesUploadServer($this->token, $params);
         }
 

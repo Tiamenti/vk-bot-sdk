@@ -12,7 +12,12 @@ function mockApiForDoc(array $saveResponse, string $uploadUrl = 'https://upload.
 {
     $docs = Mockery::mock();
     $docs->shouldReceive('getMessagesUploadServer')->andReturn(['upload_url' => $uploadUrl]);
-    $docs->shouldReceive('getWallUploadServer')->andReturn(['upload_url' => $uploadUrl]);
+    // docs.getWallUploadServer НЕ должен получать параметр 'type'
+    $docs->shouldReceive('getWallUploadServer')
+        ->withArgs(function (string $token, array $params) {
+            return ! array_key_exists('type', $params);
+        })
+        ->andReturn(['upload_url' => $uploadUrl]);
     $docs->shouldReceive('save')->andReturn($saveResponse);
 
     $api = Mockery::mock(VKApiClient::class);
@@ -113,4 +118,41 @@ describe('PendingDocumentUpload — нормализация ответа', func
         fclose($stream);
     });
 
+    it('toWall() не передаёт type в getWallUploadServer (регрессия VKApiParamException)', function (): void {
+        // Этот тест воспроизводит баг: type=doc передавался в getWallUploadServer,
+        // который его не принимает, и VK возвращал "invalid type".
+        $docs = Mockery::mock();
+
+        $docs->shouldReceive('getWallUploadServer')
+            ->once()
+            ->withArgs(function (string $token, array $params): bool {
+                // Убеждаемся что type отсутствует в параметрах
+                expect($params)->not->toHaveKey('type');
+                expect($params)->toHaveKey('group_id');
+
+                return true;
+            })
+            ->andReturn(['upload_url' => 'https://upload.vk.com/doc']);
+
+        $docs->shouldReceive('save')->andReturn([
+            'type' => 'doc',
+            'doc' => ['owner_id' => 1, 'id' => 2],
+        ]);
+
+        $api = Mockery::mock(VKApiClient::class);
+        $api->shouldReceive('docs')->andReturn($docs);
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'vk_doc_');
+        file_put_contents($tmpFile, 'content');
+
+        Http::fake(['*' => Http::response(['file' => 'encoded'], 200)]);
+
+        $attachment = (new PendingDocumentUpload($api, 'token'))
+            ->toWall(groupId: 123)
+            ->fromPath($tmpFile);
+
+        expect($attachment->type)->toBe(AttachmentType::Document);
+
+        unlink($tmpFile);
+    });
 });
