@@ -8,6 +8,7 @@ use Illuminate\Container\Container;
 use Tiamenti\VkBotSdk\Context\MessageContext;
 use Tiamenti\VkBotSdk\Enums\EventType;
 use Tiamenti\VkBotSdk\Handlers\Router;
+use Tiamenti\VkBotSdk\Upload\Uploader;
 use VK\Client\VKApiClient;
 
 /**
@@ -213,5 +214,17 @@ final class VkBot
         }
 
         $this->routesLoaded = true;
+    }
+
+    /**
+     * Получить загрузчик вложений.
+     *
+     * @example
+     * $attachment = Vk::upload()->photo()->toMessages($peerId)->fromPath('/tmp/photo.jpg');
+     * $ctx->reply(attachment: $attachment);
+     */
+    public function upload(): Uploader
+    {
+        return new Uploader($this);
     }
 }

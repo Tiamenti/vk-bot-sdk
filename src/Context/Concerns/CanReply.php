@@ -6,6 +6,7 @@ namespace Tiamenti\VkBotSdk\Context\Concerns;
 
 use Tiamenti\VkBotSdk\Exceptions\VkApiException;
 use Tiamenti\VkBotSdk\Keyboard\Keyboard;
+use Tiamenti\VkBotSdk\Upload\ValueObjects\Attachment;
 use VK\Client\VKApiClient;
 
 /**
@@ -21,7 +22,7 @@ trait CanReply
      * Отправить сообщение в текущий чат.
      *
      * @param  string|null  $message  Текст сообщения
-     * @param  string|array|null  $attachment  Вложение (строка или массив)
+     * @param  string|array|Attachment|null  $attachment  Вложение (строка, массив, или объект Attachment)
      * @param  Keyboard|array|null  $keyboard  Клавиатура
      * @param  int|null  $stickerId  ID стикера
      * @param  bool  $dontParseLinks  Не парсить ссылки
@@ -38,7 +39,7 @@ trait CanReply
      */
     public function reply(
         ?string $message = null,
-        string|array|null $attachment = null,
+        string|array|Attachment|null $attachment = null,
         Keyboard|array|null $keyboard = null,
         ?int $stickerId = null,
         bool $dontParseLinks = false,
@@ -60,9 +61,7 @@ trait CanReply
         }
 
         if ($attachment !== null) {
-            $params['attachment'] = is_array($attachment)
-                ? implode(',', $attachment)
-                : $attachment;
+            $params['attachment'] = $this->normalizeAttachment($attachment);
         }
 
         if ($keyboard !== null) {
@@ -130,7 +129,7 @@ trait CanReply
         int $messageId,
         string $message,
         Keyboard|array|null $keyboard = null,
-        string|array|null $attachment = null,
+        string|array|Attachment|null $attachment = null,
     ): void {
         $params = [
             'peer_id' => $this->peerId,
@@ -145,9 +144,7 @@ trait CanReply
         }
 
         if ($attachment !== null) {
-            $params['attachment'] = is_array($attachment)
-                ? implode(',', $attachment)
-                : $attachment;
+            $params['attachment'] = $this->normalizeAttachment($attachment);
         }
 
         $this->api->messages()->edit($this->token, $params);
@@ -166,5 +163,31 @@ trait CanReply
             'message_ids' => implode(',', (array) $messageIds),
             'delete_for_all' => 1,
         ]);
+    }
+
+    /**
+     * Нормализовать вложение в строку для VK API.
+     *
+     * Принимает:
+     *   - Attachment — кастуется через (string)
+     *   - string — используется как есть
+     *   - array — каждый элемент кастуется к строке, затем join через запятую
+     *
+     * @param  string|array<int, string|Attachment>|Attachment  $attachment
+     */
+    private function normalizeAttachment(string|array|Attachment $attachment): string
+    {
+        if ($attachment instanceof Attachment) {
+            return (string) $attachment;
+        }
+
+        if (is_string($attachment)) {
+            return $attachment;
+        }
+
+        return implode(',', array_map(
+            static fn (string|Attachment $item): string => (string) $item,
+            $attachment,
+        ));
     }
 }

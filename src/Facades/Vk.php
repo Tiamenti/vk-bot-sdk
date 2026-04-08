@@ -22,6 +22,7 @@ use Tiamenti\VkBotSdk\VkBot;
  * @method static bool validateSecret(string $incomingSecret)
  * @method static \VK\Client\VKApiClient getApi()
  * @method static string getToken()
+ * @method static \Tiamenti\VkBotSdk\Upload\Uploader upload()
  *
  * @see VkBot
  */
