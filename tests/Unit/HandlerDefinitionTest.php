@@ -8,7 +8,7 @@ use Tiamenti\VkBotSdk\Handlers\HandlerDefinition;
 use VK\Client\VKApiClient;
 
 /**
- * Вспомогательная функция — создать MessageContext с текстом.
+ * Вспомогательная функция — создать MessageContext с текстом и/или payload.
  */
 function makeCtx(string $text = '', ?array $payload = null, EventType $event = EventType::MessageNew): MessageContext
 {
@@ -28,7 +28,7 @@ function makeCtx(string $text = '', ?array $payload = null, EventType $event = E
     );
 }
 
-describe('HandlerDefinition::matches()', function (): void {
+describe('HandlerDefinition::matches() — события', function (): void {
 
     it('совпадает по EventType', function (): void {
         $def = new HandlerDefinition(
@@ -40,6 +40,10 @@ describe('HandlerDefinition::matches()', function (): void {
         expect($def->matches(makeCtx(event: EventType::GroupJoin)))->toBeTrue();
         expect($def->matches(makeCtx(event: EventType::GroupLeave)))->toBeFalse();
     });
+
+});
+
+describe('HandlerDefinition::matches() — текст', function (): void {
 
     it('совпадает по точному тексту (без учёта регистра)', function (): void {
         $def = new HandlerDefinition(
@@ -75,7 +79,21 @@ describe('HandlerDefinition::matches()', function (): void {
         expect($def->matches(makeCtx('пока')))->toBeFalse();
     });
 
-    it('совпадает по команде со слешем и без', function (): void {
+    it('не совпадает на пустой текст', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_HEARS,
+            handler: fn () => null,
+            pattern: 'привет',
+        );
+
+        expect($def->matches(makeCtx('')))->toBeFalse();
+    });
+
+});
+
+describe('HandlerDefinition::matches() — команды', function (): void {
+
+    it('совпадает на команду со слешем и без', function (): void {
         $def = new HandlerDefinition(
             type: HandlerDefinition::TYPE_COMMAND,
             handler: fn () => null,
@@ -87,16 +105,113 @@ describe('HandlerDefinition::matches()', function (): void {
         expect($def->matches(makeCtx('/help')))->toBeFalse();
     });
 
-    it('совпадает по payload массиву', function (): void {
+});
+
+describe('HandlerDefinition::matches() — payload', function (): void {
+
+    // -----------------------------------------------------------------------
+    // Частичное совпадение (ключевой сценарий)
+    // -----------------------------------------------------------------------
+
+    it("частичное совпадение: паттерн ['action'=>'buy'], payload содержит доп. ключи", function (): void {
         $def = new HandlerDefinition(
             type: HandlerDefinition::TYPE_PAYLOAD,
             handler: fn () => null,
-            payload: [['action' => 'buy']],
+            payload: ['action' => 'buy'],
+        );
+
+        // payload кнопки содержит лишний ключ product_id — должно совпасть
+        expect($def->matches(makeCtx(payload: ['action' => 'buy', 'product_id' => 123])))->toBeTrue();
+        // Точное совпадение без лишних ключей — тоже должно совпасть
+        expect($def->matches(makeCtx(payload: ['action' => 'buy'])))->toBeTrue();
+        // Другое action — не совпадает
+        expect($def->matches(makeCtx(payload: ['action' => 'cancel', 'product_id' => 123])))->toBeFalse();
+    });
+
+    it('частичное совпадение по нескольким ключам паттерна', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_PAYLOAD,
+            handler: fn () => null,
+            payload: ['action' => 'buy', 'type' => 'premium'],
+        );
+
+        expect($def->matches(makeCtx(payload: ['action' => 'buy', 'type' => 'premium', 'id' => 5])))->toBeTrue();
+        expect($def->matches(makeCtx(payload: ['action' => 'buy', 'type' => 'basic', 'id' => 5])))->toBeFalse();
+        expect($def->matches(makeCtx(payload: ['action' => 'buy'])))->toBeFalse(); // нет ключа 'type'
+    });
+
+    // -----------------------------------------------------------------------
+    // Список паттернов (list-массив)
+    // -----------------------------------------------------------------------
+
+    it('список паттернов: срабатывает на любой из них', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_PAYLOAD,
+            handler: fn () => null,
+            payload: [
+                ['action' => 'yes'],
+                ['action' => 'confirm'],
+            ],
+        );
+
+        expect($def->matches(makeCtx(payload: ['action' => 'yes'])))->toBeTrue();
+        expect($def->matches(makeCtx(payload: ['action' => 'confirm', 'extra' => 1])))->toBeTrue();
+        expect($def->matches(makeCtx(payload: ['action' => 'no'])))->toBeFalse();
+    });
+
+    // -----------------------------------------------------------------------
+    // Строковый паттерн
+    // -----------------------------------------------------------------------
+
+    it('строковый паттерн совпадает по ключу action', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_PAYLOAD,
+            handler: fn () => null,
+            payload: 'buy',
         );
 
         expect($def->matches(makeCtx(payload: ['action' => 'buy'])))->toBeTrue();
-        expect($def->matches(makeCtx(payload: ['action' => 'sell'])))->toBeFalse();
+        expect($def->matches(makeCtx(payload: ['action' => 'cancel'])))->toBeFalse();
     });
+
+    it('строковый паттерн совпадает по ключу button', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_PAYLOAD,
+            handler: fn () => null,
+            payload: 'yes',
+        );
+
+        expect($def->matches(makeCtx(payload: ['button' => 'yes'])))->toBeTrue();
+        expect($def->matches(makeCtx(payload: ['button' => 'no'])))->toBeFalse();
+    });
+
+    // -----------------------------------------------------------------------
+    // Граничные случаи
+    // -----------------------------------------------------------------------
+
+    it('не совпадает при отсутствии payload', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_PAYLOAD,
+            handler: fn () => null,
+            payload: ['action' => 'buy'],
+        );
+
+        expect($def->matches(makeCtx('без payload')))->toBeFalse();
+    });
+
+    it('использует array_key_exists, а не isset (ключ с null-значением)', function (): void {
+        $def = new HandlerDefinition(
+            type: HandlerDefinition::TYPE_PAYLOAD,
+            handler: fn () => null,
+            payload: ['action' => null],
+        );
+
+        expect($def->matches(makeCtx(payload: ['action' => null])))->toBeTrue();
+    });
+
+    // -----------------------------------------------------------------------
+    // Fallback
+    // -----------------------------------------------------------------------
 
     it('fallback всегда совпадает', function (): void {
         $def = new HandlerDefinition(
@@ -105,16 +220,6 @@ describe('HandlerDefinition::matches()', function (): void {
         );
 
         expect($def->matches(makeCtx('любой текст')))->toBeTrue();
-    });
-
-    it('не совпадает с пустым текстом для hears', function (): void {
-        $def = new HandlerDefinition(
-            type: HandlerDefinition::TYPE_HEARS,
-            handler: fn () => null,
-            pattern: 'привет',
-        );
-
-        expect($def->matches(makeCtx('')))->toBeFalse();
     });
 
 });

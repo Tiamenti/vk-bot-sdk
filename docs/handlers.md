@@ -71,7 +71,8 @@ Vk::on(EventType::MessageEvent, function (MessageContext $ctx): void {
 });
 ```
 
-Полный список событий — в [Enums/EventType](../src/Enums/EventType.php) или [документации VK](https://dev.vk.com/ru/api/community-events/json-schema).
+Полный список событий — в [Enums/EventType](../src/Enums/EventType.php)
+или [документации VK](https://dev.vk.com/ru/api/community-events/json-schema).
 
 ---
 
@@ -80,7 +81,7 @@ Vk::on(EventType::MessageEvent, function (MessageContext $ctx): void {
 Срабатывает при нажатии кнопки с определённым payload.
 
 ```php
-// Совпадение по массиву (все ключи должны совпасть)
+// Совпадение по массиву (все переданные ключи должны совпасть)
 Vk::onPayload(['action' => 'buy', 'item' => 'book'], function (MessageContext $ctx): void {
     $ctx->reply('Вы покупаете книгу!');
 });

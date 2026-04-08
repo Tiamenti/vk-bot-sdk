@@ -157,40 +157,107 @@ final class HandlerDefinition
             return false;
         }
 
-        $patterns = (array) $this->payload;
+        // Нормализуем аргумент в список паттернов.
+        //
+        // Возможные форматы аргумента Vk::onPayload():
+        //
+        //   string → 'buy'
+        //     Итог: ['buy']
+        //
+        //   assoc  → ['action' => 'buy']
+        //     Это ОДИН паттерн-массив, не список. array_is_list() == false.
+        //     Итог: [['action' => 'buy']]
+        //
+        //   list   → [['action' => 'buy'], ['action' => 'cancel']]
+        //     Это список паттернов. array_is_list() == true.
+        //     Итог: [['action' => 'buy'], ['action' => 'cancel']]
+        //
+        $patterns = $this->normalizePayloadPatterns($this->payload);
 
         foreach ($patterns as $pattern) {
-            if (is_string($pattern)) {
-                // Проверяем конкретное значение ключа 'button' или всего payload
-                if (isset($payload['button']) && $payload['button'] === $pattern) {
-                    return true;
-                }
-                if (isset($payload['action']) && $payload['action'] === $pattern) {
-                    return true;
-                }
-                // Сравнение JSON-строки
-                if (json_encode($payload, JSON_UNESCAPED_UNICODE) === $pattern) {
-                    return true;
-                }
-
-                continue;
+            if (is_string($pattern) && $this->payloadMatchesString($payload, $pattern)) {
+                return true;
             }
 
-            // Сравнение массива: все ключи из паттерна должны совпасть
-            if (is_array($pattern)) {
-                $match = true;
-                foreach ($pattern as $key => $value) {
-                    if (! isset($payload[$key]) || $payload[$key] !== $value) {
-                        $match = false;
-                        break;
-                    }
-                }
-                if ($match) {
-                    return true;
-                }
+            if (is_array($pattern) && $this->payloadContains($payload, $pattern)) {
+                return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Привести аргумент onPayload() к единому виду: плоский список паттернов.
+     *
+     * @param  string|array<mixed>|null  $raw
+     * @return array<int, string|array<string, mixed>>
+     */
+    private function normalizePayloadPatterns(string|array|null $raw): array
+    {
+        if ($raw === null) {
+            return [];
+        }
+
+        if (is_string($raw)) {
+            return [$raw];
+        }
+
+        // Числово-индексированный массив — уже список паттернов
+        // Пример: [['action' => 'buy'], ['action' => 'cancel']]
+        if (array_is_list($raw)) {
+            return $raw;
+        }
+
+        // Ассоциативный массив — один паттерн, оборачиваем в список
+        // Пример: ['action' => 'buy', 'product_id' => 123]
+        return [$raw];
+    }
+
+    /**
+     * Сопоставить payload со строковым паттерном.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function payloadMatchesString(array $payload, string $pattern): bool
+    {
+        if (isset($payload['button']) && $payload['button'] === $pattern) {
+            return true;
+        }
+
+        if (isset($payload['action']) && $payload['action'] === $pattern) {
+            return true;
+        }
+
+        // Точное сравнение всего payload как JSON-строки
+        if (json_encode($payload, JSON_UNESCAPED_UNICODE) === $pattern) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Проверить, содержит ли payload все ключи паттерна с теми же значениями.
+     * Лишние ключи в payload игнорируются — это намеренное поведение,
+     * позволяющее регистрировать обработчик по частичному совпадению.
+     *
+     * Пример:
+     *   payload  = ['action' => 'buy', 'product_id' => 123]
+     *   pattern  = ['action' => 'buy']
+     *   результат = true  ✓
+     *
+     * @param  array<string, mixed>  $payload  Реальный payload кнопки
+     * @param  array<string, mixed>  $pattern  Паттерн для сравнения
+     */
+    private function payloadContains(array $payload, array $pattern): bool
+    {
+        foreach ($pattern as $key => $value) {
+            if (! array_key_exists($key, $payload) || $payload[$key] !== $value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
