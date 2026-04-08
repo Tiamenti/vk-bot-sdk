@@ -109,12 +109,17 @@ final readonly class Attachment
     /**
      * Строковое представление для передачи в attachment параметр VK API.
      */
-    public function __toString(): string
+    public function toString(): string
     {
         $base = "{$this->type->value}{$this->ownerId}_{$this->id}";
 
         return $this->accessKey !== null
             ? "{$base}_{$this->accessKey}"
             : $base;
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 }
