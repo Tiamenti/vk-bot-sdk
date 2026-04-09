@@ -74,6 +74,7 @@ trait UploadsFile
     private function uploadFromStream(string $uploadUrl, string $fieldName, mixed $stream, string $filename): array
     {
         $response = Http::attach($fieldName, $stream, $filename)
+            ->timeout(0)
             ->post($uploadUrl);
 
         if ($response->failed()) {
