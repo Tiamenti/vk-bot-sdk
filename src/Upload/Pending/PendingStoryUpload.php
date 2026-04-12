@@ -132,18 +132,23 @@ final class PendingStoryUpload implements PendingUpload
 
     public function fromPath(string $path): Attachment
     {
-        [$uploadUrl, $field] = $this->getUploadServer();
-        $uploaded = $this->uploadFromPath($uploadUrl, $field, $path);
+        return $this->withRetry(function () use ($path): Attachment {
+            [$uploadUrl, $field] = $this->getUploadServer();
+            $uploaded = $this->uploadFromPath($uploadUrl, $field, $path);
 
-        return $this->save($uploaded);
+            return $this->save($uploaded);
+        });
     }
 
     public function fromStream(mixed $stream, string $filename): Attachment
     {
-        [$uploadUrl, $field] = $this->getUploadServer();
-        $uploaded = $this->uploadFromStream($uploadUrl, $field, $stream, $filename);
+        return $this->withRetry(function () use ($stream, $filename): Attachment {
+            $this->rewindStreamIfSeekable($stream);
+            [$uploadUrl, $field] = $this->getUploadServer();
+            $uploaded = $this->uploadFromStream($uploadUrl, $field, $stream, $filename);
 
-        return $this->save($uploaded);
+            return $this->save($uploaded);
+        });
     }
 
     // -------------------------------------------------------------------------

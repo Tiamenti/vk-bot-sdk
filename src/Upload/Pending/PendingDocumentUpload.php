@@ -137,18 +137,23 @@ final class PendingDocumentUpload implements PendingUpload
 
     public function fromPath(string $path): Attachment
     {
-        $uploadUrl = $this->getUploadServer();
-        $uploaded = $this->uploadFromPath($uploadUrl, 'file', $path);
+        return $this->withRetry(function () use ($path): Attachment {
+            $uploadUrl = $this->getUploadServer();
+            $uploaded = $this->uploadFromPath($uploadUrl, 'file', $path);
 
-        return $this->save($uploaded);
+            return $this->save($uploaded);
+        });
     }
 
     public function fromStream(mixed $stream, string $filename): Attachment
     {
-        $uploadUrl = $this->getUploadServer();
-        $uploaded = $this->uploadFromStream($uploadUrl, 'file', $stream, $filename);
+        return $this->withRetry(function () use ($stream, $filename): Attachment {
+            $this->rewindStreamIfSeekable($stream);
+            $uploadUrl = $this->getUploadServer();
+            $uploaded = $this->uploadFromStream($uploadUrl, 'file', $stream, $filename);
 
-        return $this->save($uploaded);
+            return $this->save($uploaded);
+        });
     }
 
     // -------------------------------------------------------------------------

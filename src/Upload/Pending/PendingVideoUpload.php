@@ -140,22 +140,27 @@ final class PendingVideoUpload implements PendingUpload
 
     public function fromPath(string $path): Attachment
     {
-        $saved = $this->callVideoSave();
-        $uploadUrl = (string) $saved['upload_url'];
+        return $this->withRetry(function () use ($path): Attachment {
+            // video.save возвращает upload_url напрямую — нет отдельного getUploadServer.
+            // Вызываем его заново на каждой попытке чтобы получить актуальный URL.
+            $saved = $this->callVideoSave();
+            $uploadUrl = (string) $saved['upload_url'];
+            $this->uploadFromPath($uploadUrl, 'video_file', $path);
 
-        $this->uploadFromPath($uploadUrl, 'video_file', $path);
-
-        return Attachment::fromVideoResponse($saved);
+            return Attachment::fromVideoResponse($saved);
+        });
     }
 
     public function fromStream(mixed $stream, string $filename): Attachment
     {
-        $saved = $this->callVideoSave();
-        $uploadUrl = (string) $saved['upload_url'];
+        return $this->withRetry(function () use ($stream, $filename): Attachment {
+            $this->rewindStreamIfSeekable($stream);
+            $saved = $this->callVideoSave();
+            $uploadUrl = (string) $saved['upload_url'];
+            $this->uploadFromStream($uploadUrl, 'video_file', $stream, $filename);
 
-        $this->uploadFromStream($uploadUrl, 'video_file', $stream, $filename);
-
-        return Attachment::fromVideoResponse($saved);
+            return Attachment::fromVideoResponse($saved);
+        });
     }
 
     // -------------------------------------------------------------------------

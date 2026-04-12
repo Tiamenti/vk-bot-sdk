@@ -174,20 +174,27 @@ final class PendingPhotoUpload implements PendingUpload
 
     public function fromPath(string $path): Attachment
     {
-        [$uploadUrl, $field, $saveCallback] = $this->resolveDestination();
+        return $this->withRetry(function () use ($path): Attachment {
+            // resolveDestination() вызывает getUploadServer() на каждую попытку.
+            // Это ключевое: при 413 старый upload_url уже не поможет — нужен новый.
+            [$uploadUrl, $field, $saveCallback] = $this->resolveDestination();
+            $uploaded = $this->uploadFromPath($uploadUrl, $field, $path);
 
-        $uploaded = $this->uploadFromPath($uploadUrl, $field, $path);
-
-        return $saveCallback($uploaded);
+            return $saveCallback($uploaded);
+        });
     }
 
     public function fromStream(mixed $stream, string $filename): Attachment
     {
-        [$uploadUrl, $field, $saveCallback] = $this->resolveDestination();
+        return $this->withRetry(function () use ($stream, $filename): Attachment {
+            // Перематываем поток перед каждой попыткой.
+            // Для не-seekable потоков (S3 presigned, curl) выбросит RuntimeException.
+            $this->rewindStreamIfSeekable($stream);
+            [$uploadUrl, $field, $saveCallback] = $this->resolveDestination();
+            $uploaded = $this->uploadFromStream($uploadUrl, $field, $stream, $filename);
 
-        $uploaded = $this->uploadFromStream($uploadUrl, $field, $stream, $filename);
-
-        return $saveCallback($uploaded);
+            return $saveCallback($uploaded);
+        });
     }
 
     // -------------------------------------------------------------------------
