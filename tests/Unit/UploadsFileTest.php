@@ -16,6 +16,7 @@ class TestableUploader
         uploadFromStream as public;
         withRetry as public;
         rewindStreamIfSeekable as public;
+        assertUploadedKey as public assertUploadedKeyPublic;
     }
 }
 
@@ -272,6 +273,52 @@ describe('UploadsFile::rewindStreamIfSeekable()', function (): void {
             ->not->toThrow(RuntimeException::class);
 
         fclose($stream);
+    });
+
+});
+
+// ---------------------------------------------------------------------------
+// Регрессия: POST->GET редирект (allow_redirects strict)
+// ---------------------------------------------------------------------------
+
+describe('UploadsFile - assertUploadedKey при потере тела редиректом', function (): void {
+
+    it('бросает UploadException с объяснением если ответ не содержит ожидаемый ключ', function (): void {
+        // Воспроизводит сценарий: сервер вернул HTTP 200, но тело ответа
+        // не содержит 'file' — именно это происходило при POST->GET редиректе
+        // до добавления allow_redirects.strict=true. VK возвращал пустой
+        // или нестандартный JSON, docs.save получал пустой file и говорил
+        // "file is undefined".
+        $uploader = new TestableUploader;
+        $responseWithoutFile = ['error' => 'unexpected', 'server' => 0];
+
+        try {
+            $uploader->assertUploadedKeyPublic($responseWithoutFile, 'file');
+            expect(false)->toBeTrue('Must have thrown UploadException');
+        } catch (UploadException $e) {
+            expect($e->getMessage())->toContain("missing required key 'file'");
+            expect($e->getMessage())->toContain('redirect');
+            expect($e->getMessage())->toContain('received keys');
+        }
+    });
+
+    it('не бросает исключение если ключ присутствует', function (): void {
+        $uploader = new TestableUploader;
+        $validResponse = ['file' => 'encoded_doc_data_from_vk'];
+
+        expect(fn () => $uploader->assertUploadedKeyPublic($validResponse, 'file'))
+            ->not->toThrow(Exception::class);
+    });
+
+    it('бросает исключение если ключ присутствует но пустой', function (): void {
+        $uploader = new TestableUploader;
+
+        try {
+            $uploader->assertUploadedKeyPublic(['file' => ''], 'file');
+            expect(false)->toBeTrue('Must have thrown');
+        } catch (UploadException $e) {
+            expect($e->getMessage())->toContain("missing required key 'file'");
+        }
     });
 
 });

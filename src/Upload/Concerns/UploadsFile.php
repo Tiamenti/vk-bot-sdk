@@ -106,6 +106,26 @@ trait UploadsFile
             // VK-серверы загрузки иногда не отвечают на него корректно,
             // добавляя задержку перед началом передачи данных.
             'expect' => false,
+
+            // Критично: сохранять метод POST при редиректах (301/302/303).
+            //
+            // По умолчанию Guzzle конвертирует POST → GET при 302-редиректе
+            // (поведение браузеров, закреплённое в HTTP/1.1 §15.4.3).
+            // Серверы VK (pu.vk.com) используют 302 для балансировки нагрузки
+            // между инстансами. После редиректа Guzzle отправляет GET —
+            // сервер загрузки его не принимает (405), а тело multipart-запроса
+            // теряется. Именно это приводит к интермиттентным ошибкам:
+            //   - HTTP 405 Method Not Allowed
+            //   - "file is undefined" в docs.save (пустое тело → нет ключа file)
+            //
+            // 'strict' => true заставляет Guzzle сохранять POST для всех
+            // типов редиректов, включая 301 и 302.
+            'allow_redirects' => [
+                'max' => 5,
+                'strict' => true,
+                'referer' => false,
+                'protocols' => ['https', 'http'],
+            ],
         ])
             ->attach($fieldName, $stream, $filename)
             ->post($uploadUrl);
@@ -169,6 +189,34 @@ trait UploadsFile
         // Сюда попасть невозможно (петля выбрасывает или возвращает),
         // но PHP требует return/throw после цикла
         throw $lastException ?? new RuntimeException('Upload failed: unknown error');
+    }
+
+    /**
+     * Проверить, что ответ сервера загрузки содержит ожидаемый ключ.
+     *
+     * Если ключ отсутствует или пустой — значит multipart-тело не дошло до
+     * сервера (чаще всего из-за редиректа POST→GET). Это позволяет получить
+     * внятную ошибку в SDK вместо загадочного "file is undefined" от VK API.
+     *
+     * @param  array<string, mixed>  $uploaded
+     *
+     * @throws UploadException
+     */
+    private function assertUploadedKey(array $uploaded, string $key): void
+    {
+        $value = $uploaded[$key] ?? null;
+
+        if ($value === null || $value === '') {
+            $receivedKeys = implode(', ', array_keys($uploaded)) ?: '(empty response)';
+
+            throw new UploadException(
+                httpStatus: 0,
+                message: "Upload server response is missing required key '{$key}'. "
+                    ."Received keys: [{$receivedKeys}]. "
+                    .'This usually means the multipart body was lost during an HTTP redirect (POST→GET). '
+                    .'Ensure allow_redirects.strict=true is set in Guzzle options.',
+            );
+        }
     }
 
     /**

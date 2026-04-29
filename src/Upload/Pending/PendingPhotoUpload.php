@@ -228,6 +228,7 @@ final class PendingPhotoUpload implements PendingUpload
         $uploadUrl = (string) $server['upload_url'];
 
         return [$uploadUrl, 'photo', function (array $uploaded): Attachment {
+            $this->assertUploadedKey($uploaded, 'photo');
             $saved = $this->api->photos()->saveMessagesPhoto($this->token, $uploaded);
 
             return Attachment::fromPhotoResponse((array) $saved);
@@ -241,6 +242,7 @@ final class PendingPhotoUpload implements PendingUpload
         $uploadUrl = (string) $server['upload_url'];
 
         return [$uploadUrl, 'photo', function (array $uploaded): Attachment {
+            $this->assertUploadedKey($uploaded, 'photo');
             $saved = $this->api->photos()->saveWallPhoto($this->token, array_merge(
                 $this->destinationParams,
                 $uploaded,

@@ -197,7 +197,12 @@ final class PendingDocumentUpload implements PendingUpload
      */
     private function save(array $uploaded): Attachment
     {
-        $params = ['file' => $uploaded['file'] ?? ''];
+        // Проверяем наличие ключа до вызова docs.save.
+        // Если 'file' отсутствует — multipart-тело потерялось при редиректе.
+        // Без этой проверки VK вернёт невнятное "file is undefined".
+        $this->assertUploadedKey($uploaded, 'file');
+
+        $params = ['file' => (string) $uploaded['file']];
 
         if ($this->title !== null) {
             $params['title'] = $this->title;
